@@ -171,7 +171,11 @@ update(Conn, Table, Record, UpdateData) ->
       UpdateRecord = lists:foldl(fun({Field, Value}, Rec) ->
               Rec:Field(Value)
           end, Record, UpdateData),
-      select(Conn, Table, all, [{where, [{id, UpdateRecord:id()}]}]);
+      WhereClause = case UpdateRecord:id() of
+                      undefined -> UpdateRecord;
+                      _ -> [{id, UpdateRecord:id()}]
+                    end,
+      select(Conn, Table, all, [{where, WhereClause}]);
     E -> E
   end.
 
