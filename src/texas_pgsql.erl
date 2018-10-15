@@ -165,13 +165,13 @@ update(Conn, Table, Record, UpdateData) ->
   SQLCmd = "UPDATE " ++
            texas_sql:sql_field(Table, ?MODULE) ++
            texas_sql:set_clause(UpdateData, ?MODULE) ++
-           texas_sql:where_clause(Record, ?MODULE),
+           texas_sql:where_clause(texas_sql:clause(where, [{where, [{id, Record:id()}]}]), ?MODULE),
   case exec(SQLCmd, Conn) of
     {ok, _} ->
       UpdateRecord = lists:foldl(fun({Field, Value}, Rec) ->
               Rec:Field(Value)
           end, Record, UpdateData),
-      select(Conn, Table, all, [{where, UpdateRecord}]);
+      select(Conn, Table, all, [{where, [{id, UpdateRecord:id()}]}]);
     E -> E
   end.
 
@@ -179,7 +179,7 @@ update(Conn, Table, Record, UpdateData) ->
 delete(Conn, Table, Record) ->
   SQLCmd = "DELETE FROM " ++
            texas_sql:sql_field(Table, ?MODULE) ++
-           texas_sql:where_clause(Record, ?MODULE),
+           texas_sql:where_clause([{id, Record:id()}], ?MODULE),
   case exec(SQLCmd, Conn) of
     {ok, _} -> ok;
     E -> E
